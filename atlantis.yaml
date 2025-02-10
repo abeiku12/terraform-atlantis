@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atlantis
+  labels:
+    app: atlantis
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: atlantis
+  template:
+    metadata:
+      labels:
+        app: atlantis
+    spec:
+      containers:
+      - name: atlantis
+        image: runatlantis/atlantis:latest
+        ports:
+        - containerPort: 4141
+        env:
+        - name: ATLANTIS_GH_USER
+          valueFrom:
+            secretKeyRef:
+              name: atlantis-secrets
+              key: github-user
+        - name: ATLANTIS_GH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: atlantis-secrets
+              key: github-token
+        - name: ATLANTIS_REPO_ALLOWLIST
+          value: "github.com/my-org/*"
+      nodeSelector:
+        kubernetes.io/os: linux
